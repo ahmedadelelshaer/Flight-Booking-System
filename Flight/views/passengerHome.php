@@ -3,7 +3,6 @@ session_start();
 include_once '../php/includes/db.php';
 $conn = connectToDB();
 
-
 // Check if user is logged in and is a passenger
 if (!isset($_SESSION['id']) || $_SESSION['type'] != 'passenger') {
     header("Location: login.php");
@@ -12,14 +11,38 @@ if (!isset($_SESSION['id']) || $_SESSION['type'] != 'passenger') {
 
 // Fetch passenger data
 $userId = $_SESSION['id'];
-$stmt = $conn->prepare("SELECT name, email, photo,passport_img, tel FROM passenger WHERE id = ?");
+$stmt = $conn->prepare("SELECT name, email, photo, passport_img, tel FROM passenger WHERE id = ?");
 $stmt->execute([$userId]);
 $profile = $stmt->fetch();
 
 // Fetch completed flights
-$stmt = $conn->prepare("SELECT id, start_datetime,start_datetime FROM flights WHERE passengers_registered = ? And is_completed = 1");
+$stmt = $conn->prepare("SELECT flights.name, flights.source, flights.destination, flight_id 
+                        FROM passengers_flights 
+                        JOIN flights ON flight_id = flights.id 
+                        WHERE passenger_id = ? AND is_completed = 1");
 $stmt->execute([$userId]);
 $completedFlights = $stmt->fetchAll();
+
+// Fetch current flights
+$stmt = $conn->prepare("SELECT flights.name, flights.source, flights.destination, flight_id 
+                        FROM passengers_flights 
+                        JOIN flights ON flight_id = flights.id 
+                        WHERE passenger_id = ? AND is_completed = 0");
+$stmt->execute([$userId]);
+$currentFlights = $stmt->fetchAll();
+
+// Search flights functionality
+$searchResults = [];
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['from'], $_GET['to'])) {
+    $from = $_GET['from'];
+    $to = $_GET['to'];
+    $stmt = $conn->prepare("SELECT id AS flight_id,name, company_id, source, destination 
+                            FROM flights 
+                            WHERE source LIKE ? AND destination LIKE ? AND is_completed = 0");
+    $stmt->execute(["%$from%", "%$to%"]);
+    $searchResults = $stmt->fetchAll();
+}
+
 // Logout logic
 if (isset($_GET['logout'])) {
     session_unset();
@@ -65,7 +88,7 @@ if (isset($_GET['logout'])) {
         }
 
         .profile-section {
-            display: flex;
+            display: block;
             align-items: center;
             background-color: white;
             padding: 20px;
@@ -98,11 +121,16 @@ if (isset($_GET['logout'])) {
             padding: 10px;
             text-align: left;
             border: 1px solid #ddd;
+            cursor: pointer;
         }
 
         .flights-table th {
             background-color: #007bff;
             color: white;
+        }
+
+        .flights-table tr:hover {
+            background-color: #f1f1f1;
         }
 
         .search-section {
@@ -133,20 +161,6 @@ if (isset($_GET['logout'])) {
             background-color: #218838;
         }
 
-        .logout-btn {
-            background-color: #dc3545;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            margin-top: 20px;
-            cursor: pointer;
-        }
-
-        .logout-btn:hover {
-            background-color: #c82333;
-        }
-
         .placeholder-text {
             color: #777;
             font-size: 1rem;
@@ -156,9 +170,8 @@ if (isset($_GET['logout'])) {
 </head>
 
 <body>
-
     <!-- Navbar -->
-    <div class="navbar">    
+    <div class="navbar">
         <a href="profile.php" class="profile-btn">Profile</a>
         <a href="#">Flights</a>
         <a href="?logout=true" class="logout-btn">Logout</a>
@@ -166,38 +179,40 @@ if (isset($_GET['logout'])) {
 
     <div class="container">
         <div class="header">
-            <h1>Welcome to your Passenger Dashboard, <?php echo $profile['name']; ?>!</h1>
+            <h1>Welcome to your Passenger Dashboard, <?php echo htmlspecialchars($profile['name']); ?>!</h1>
         </div>
 
-        <!-- Profile Section -->
-        <div class="profile-section">
-            <img src="<?php echo '../images/' . $profile['photo']; ?>" alt="Profile Image" class="profile-img">
-            <img src="<?php echo '../images/'. $profile['passport_img']; ?>" alt="Passport Image" class="profile-img">
-            <div class="profile-details">
-                <h2><?php echo $profile['name']; ?></h2>
-                <p>Email: <?php echo $profile['email']; ?></p>
-                <p>Phone: <?php echo $profile['tel']; ?></p>
+        <!-- Profile Section (Row) -->
+        <div class="row profile-section">
+            <div class="col-md-4">
+                <img src="<?php echo '../images/' . htmlspecialchars($profile['photo']); ?>" alt="Profile Image"
+                    class="profile-img img-fluid">
+            </div>
+            <div class="col-md-8">
+                <h2><?php echo htmlspecialchars($profile['name']); ?></h2>
+                <p>Email: <?php echo htmlspecialchars($profile['email']); ?></p>
+                <p>Phone: <?php echo htmlspecialchars($profile['tel']); ?></p>
             </div>
         </div>
 
-        <!-- Completed Flights -->
-        <div class="completed-flights">
+        <!-- Completed Flights Section (Row) -->
+        <div class="row completed-flights">
             <h3 class="section-title">Completed Flights</h3>
             <?php if (count($completedFlights) > 0): ?>
-                <table class="flights-table">
+                <table class="flights-table table table-bordered">
                     <thead>
                         <tr>
                             <th>Flight No.</th>
-                            <th>Date</th>
+                            <th>Source</th>
                             <th>Destination</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php foreach ($completedFlights as $flight): ?>
                             <tr>
-                                <td><?php echo $flight['id']; ?></td>
-                                <td><?php echo $flight['start_datetime']; ?></td>
-                                <td><?php echo $flight['destination']; ?></td>
+                                <td><?php echo htmlspecialchars($flight['name']); ?></td>
+                                <td><?php echo htmlspecialchars($flight['source']); ?></td>
+                                <td><?php echo htmlspecialchars($flight['destination']); ?></td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
@@ -207,16 +222,74 @@ if (isset($_GET['logout'])) {
             <?php endif; ?>
         </div>
 
-        <!-- Search Section -->
-        <div class="search-section">
+        <!-- Current Flights Section (Row) -->
+        <div class="row completed-flights">
+            <h3 class="section-title">Current Flights</h3>
+            <?php if (count($currentFlights) > 0): ?>
+                <table class="flights-table table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Flight No.</th>
+                            <th>Source</th>
+                            <th>Destination</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($currentFlights as $flight): ?>
+                            <tr>
+                                <td><?php echo htmlspecialchars($flight['name']); ?></td>
+                                <td><?php echo htmlspecialchars($flight['source']); ?></td>
+                                <td><?php echo htmlspecialchars($flight['destination']); ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            <?php else: ?>
+                <p class="placeholder-text">No current flights found.</p>
+            <?php endif; ?>
+        </div>
+
+        <!-- Search Section (Row) -->
+        <div class="row search-section">
             <h3 class="section-title">Search Flights</h3>
-            <form action="searchResults.php" method="GET">
-                <input type="text" name="from" placeholder="From" required>
-                <input type="text" name="to" placeholder="To" required>
-                <button type="submit">Search</button>
+            <form method="GET">
+                <div class="col-md-4">
+                    <input type="text" name="from" placeholder="From"
+                        value="<?php echo isset($_GET['from']) ? htmlspecialchars($_GET['from']) : ''; ?>" required>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" name="to" placeholder="To"
+                        value="<?php echo isset($_GET['to']) ? htmlspecialchars($_GET['to']) : ''; ?>" required>
+                </div>
+                <button type="submit" class="btn btn-success col-md-2">Search</button>
             </form>
+
+            <?php if (!empty($searchResults)): ?>
+                <h4 class="section-title mt-4">Search Results</h4>
+                <table class="flights-table table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Flight No.</th>
+                            <th>Source</th>
+                            <th>Destination</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($searchResults as $flight): ?>
+                            <tr onclick="window.location.href='flight_details.php?id=<?php echo $flight['flight_id']; ?>'">
+                                <td><?php echo htmlspecialchars($flight['name']); ?></td>
+                                <td><?php echo htmlspecialchars($flight['source']); ?></td>
+                                <td><?php echo htmlspecialchars($flight['destination']); ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            <?php elseif ($_SERVER['REQUEST_METHOD'] === 'GET'): ?>
+                <p class="placeholder-text">No flights found for your search criteria.</p>
+            <?php endif; ?>
         </div>
     </div>
+
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>

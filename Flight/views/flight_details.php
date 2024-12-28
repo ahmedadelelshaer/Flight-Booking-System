@@ -6,9 +6,6 @@ require_once 'models/Flight.php'; // Assuming the Flight model is loaded
 $flightId = $_GET['id'];
 
 // Sample data for this example, in a real-world scenario this would come from a database
-$flight = new Flight($flightId, "Flight 101", "New York -> Paris -> Tokyo", 500, '2024-12-25 14:00', '2024-12-25 18:00');
-$flight->addPassenger('registered');
-$flight->addPassenger('pending');
 
 ?>
 
@@ -29,6 +26,7 @@ $flight->addPassenger('pending');
 
         <div class="card">
             <div class="card-body">
+                
                 <h3>ID: <?php echo $flight->id; ?></h3>
                 <p><strong>Name:</strong> <?php echo $flight->name; ?></p>
                 <p><strong>Itinerary:</strong> <?php echo $flight->itinerary; ?></p>

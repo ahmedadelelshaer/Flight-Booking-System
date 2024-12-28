@@ -1,48 +1,92 @@
 <?php
-// Flight Model to represent flights
-class Flight
+
+class FlightModel
 {
-    public $id;
-    public $name;
-    public $itinerary; // Cities to pass through
-    public $registeredPassengers = 0;
-    public $pendingPassengers = 0;
-    public $fees;
-    public $startTime;
-    public $endTime;
-    public $completed = false;
+    private $conn;
 
-    public function __construct($id, $name, $itinerary, $fees, $startTime, $endTime)
+    public function __construct()
     {
-        $this->id = $id;
-        $this->name = $name;
-        $this->itinerary = $itinerary;
-        $this->fees = $fees;
-        $this->startTime = $startTime;
-        $this->endTime = $endTime;
+        $this->conn = connectToDB();
     }
 
-    // Method to add passengers
-    public function addPassenger($status)
+    // Add a new flight
+    public function addFlight($name, $source, $destination, $transit, $fees, $passengerLimit, $startTime, $endTime, $companyId)
     {
-        if ($status == 'registered') {
-            $this->registeredPassengers++;
-        } elseif ($status == 'pending') {
-            $this->pendingPassengers++;
+        $sql = "INSERT INTO flights (name, source, destination, transit, fees, passenger_limit, start_time, end_time, company_id) 
+                VALUES (:name, :source, :destination, :transit, :fees, :passenger_limit, :start_time, :end_time, :company_id)";
+
+        $stmt = $this->conn->prepare($sql);
+
+        $stmt->execute([
+            'name' => $name,
+            'source' => $source,
+            'destination' => $destination,
+            'transit' => json_encode($transit), // Convert transit array to JSON
+            'fees' => $fees,
+            'passenger_limit' => $passengerLimit,
+            'start_time' => $startTime,
+            'end_time' => $endTime,
+            'company_id' => $companyId
+        ]);
+
+        return $this->conn->lastInsertId();
+    }
+
+    // Get flight details by ID
+    public function getFlightDetails($flightId)
+    {
+        $stmt = $this->conn->prepare("SELECT * FROM flights WHERE id = :id");
+        $stmt->execute(['id' => $flightId]);
+        $flight = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($flight) {
+            $flight['transit'] = json_decode($flight['transit'], true); // Decode transit JSON back to array
         }
+
+        return $flight;
     }
 
-    // Method to cancel the flight and return fees to passengers
-    public function cancelFlight()
+    // Get pending passengers for a flight
+    public function getPendingPassengers($flightId)
     {
-        $this->completed = true;
-        // Logic to send money back to passengers (this can be added based on your payment system)
+        $stmt = $this->conn->prepare("SELECT * FROM passengers WHERE flight_id = :flight_id AND status = 'pending'");
+        $stmt->execute(['flight_id' => $flightId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // Method to get formatted flight time
-    public function getFlightTime()
+    // Get registered passengers for a flight
+    public function getRegisteredPassengers($flightId)
     {
-        return "From: " . date('Y-m-d H:i', strtotime($this->startTime)) . " To: " . date('Y-m-d H:i', strtotime($this->endTime));
+        $stmt = $this->conn->prepare("SELECT * FROM passengers WHERE flight_id = :flight_id AND status = 'registered'");
+        $stmt->execute(['flight_id' => $flightId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    // Cancel a flight and refund fees to passengers
+    public function cancelFlight($flightId)
+    {
+        // Fetch passengers to refund fees
+        $passengerStmt = $this->conn->prepare("SELECT id, fees_paid FROM passengers WHERE flight_id = :flight_id");
+        $passengerStmt->execute(['flight_id' => $flightId]);
+        $passengers = $passengerStmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Refund fees logic (you can integrate payment API here)
+        foreach ($passengers as $passenger) {
+            $this->refundPassenger($passenger['id'], $passenger['fees_paid']);
+        }
+
+        // Delete flight
+        $stmt = $this->conn->prepare("DELETE FROM flights WHERE id = :id");
+        $stmt->execute(['id' => $flightId]);
+
+        return $stmt->rowCount() > 0;
+    }
+
+    private function refundPassenger($passengerId, $fees)
+    {
+        // Logic to refund a passenger (dummy function for now)
+        // e.g., update their account balance
+        $stmt = $this->conn->prepare("UPDATE passengers SET account_balance = account_balance + :fees WHERE id = :id");
+        $stmt->execute(['fees' => $fees, 'id' => $passengerId]);
     }
 }
-?>

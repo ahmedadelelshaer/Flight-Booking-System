@@ -25,11 +25,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $_SESSION['email'] = $data_check['email'];
         $_SESSION['name'] = $data_check['name'];
 
-        // Detect user type
+        // Detect user type and store company ID if it's a company
         if (!empty($data_check['photo'])) {
             $_SESSION['type'] = 'passenger'; // It's a passenger
         } elseif (!empty($data_check['bio'])) {
             $_SESSION['type'] = 'company'; // It's a company
+            $_SESSION['company_id'] = $data_check['id']; // Store company ID
         } else {
             $_SESSION['type'] = 'unknown'; // Handle unexpected cases
         }

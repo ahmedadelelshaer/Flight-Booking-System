@@ -11,7 +11,7 @@ if (!isset($_SESSION['id']) || $_SESSION['type'] != 'passenger') {
 
 // Fetch passenger data
 $userId = $_SESSION['id'];
-$stmt = $conn->prepare("SELECT name, email, photo, passport_img, tel FROM passenger WHERE id = ?");
+$stmt = $conn->prepare("SELECT name, email,account_number, photo, passport_img, tel FROM passenger WHERE id = ?");
 $stmt->execute([$userId]);
 $profile = $stmt->fetch();
 
@@ -192,6 +192,7 @@ if (isset($_GET['logout'])) {
                 <h2><?php echo htmlspecialchars($profile['name']); ?></h2>
                 <p>Email: <?php echo htmlspecialchars($profile['email']); ?></p>
                 <p>Phone: <?php echo htmlspecialchars($profile['tel']); ?></p>
+                <p>Balance <?php echo htmlspecialchars($profile['account_number']);?>   </p>
             </div>
         </div>
 

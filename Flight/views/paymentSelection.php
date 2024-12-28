@@ -13,20 +13,21 @@ $flightId = $_GET['id'];
 $flightdata = new Flight();
 $flight = $flightdata->getFlightDetails($flightId);
 
-// Handle the flight "Take It?" action when the form is submitted
+// Handle form submission for payment
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (isset($_POST['take_flight']) && !empty($flightId)) {
-        $userId = $_SESSION['id']; // Get the user ID from session
+    if (isset($_POST['payment_type'])) {
+        $paymentType = $_POST['payment_type'];
+        $userId = $_SESSION['id'];
 
-        // Try to add the flight to the user
-        $flightTaken = $flightdata->addflighttouser($flightId, $userId);
+        // Process payment and booking
+        $paymentSuccess = $flightdata->processPaymentAndBookFlight($flightId, $userId, $paymentType);
 
-        if ($flightTaken) {
-            $flightStatusMessage = "You have successfully taken the flight!";
-            $modalType = 'success';  // Success modal
+        if ($paymentSuccess) {
+            $flightStatusMessage = "You have successfully taken Flight ID $flightId using $paymentType payment.";
+            $modalType = 'success'; // Success modal
         } else {
-            $flightStatusMessage = "You have already taken this flight!";
-            $modalType = 'danger';  // Error modal
+            $flightStatusMessage = "Payment failed. Please try again.(Insufficient balance)";
+            $modalType = 'danger'; // Error modal
         }
     }
 }
@@ -52,28 +53,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
 
-        .btn-danger {
-            background-color: #dc3545;
-            border-color: #dc3545;
-        }
-
-        .btn-danger:hover {
-            background-color: #c82333;
-            border-color: #bd2130;
-        }
-
-        .btn-primary {
-            background-color: #007bff;
-            border-color: #007bff;
-        }
-
-        .btn-primary:hover {
-            background-color: #0056b3;
-            border-color: #004085;
-        }
-
-        .alert {
-            display: none;
+        .btn-payment {
+            width: 100%;
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -87,8 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="card-body">
                 <h3 class="mb-3">Flight ID: <?php echo htmlspecialchars($flight['id']); ?></h3>
                 <p><strong>Name:</strong> <?php echo htmlspecialchars($flight['name']); ?></p>
-                <p><strong>Transit:</strong> <?php echo htmlspecialchars($flight['transit']); ?></p>
-                <td class="transit-column" data-raw="<?= htmlspecialchars($flight['transit']) ?>"><?= $transitCities ?></td>
+                <p><strong>Itinerary:</strong> <?php echo htmlspecialchars($flight['transit']); ?></p>
                 <p><strong>Fees:</strong> $<?php echo htmlspecialchars(number_format($flight['fees'], 2)); ?></p>
                 <p><strong>Time:</strong>
                     <?php echo htmlspecialchars($flight['start_datetime'] . ' - ' . $flight['end_datetime']); ?></p>
@@ -102,14 +83,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </ul>
 
                 <?php if (!$flight['is_completed'] && !isset($flightStatusMessage)): ?>
-                    <form method="POST" action="paymentSelection.php?id=<?php echo htmlspecialchars($flightId); ?>">
-                        <input type="hidden" name="take_flight" value="1">
-                        <button type="submit" class="btn btn-danger mt-3">Take It?</button>
+                    <form method="POST">
+                        <h5>Select Payment Method:</h5>
+                        <button type="submit" name="payment_type" value="cash" class="btn btn-danger btn-payment">Pay with Cash</button>
+                        <button type="submit" name="payment_type" value="account" class="btn btn-primary btn-payment">Pay with Account</button>
                     </form>
                 <?php endif; ?>
 
                 <!-- Back to Passenger Home Button -->
-                <a href="passengerHome.php" class="btn btn-primary mt-3">Back to Home</a>
+                <a href="passengerHome.php" class="btn btn-dark mt-3">Back to Home</a>
             </div>
         </div>
     </div>
@@ -146,23 +128,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             myModal.show();
         <?php endif; ?>
     </script>
-    <script>
-    // Function to sanitize transit values
-    function sanitizeTransit(transit) {
-        if (!transit) return 'No Transit'; // Handle empty or null values
-
-        // Remove unwanted characters and return the cleaned string
-        return transit.replace(/[\\"[\]]/g, '').trim();
-    }
-
-    // Apply the function to sanitize transit columns dynamically
-    document.addEventListener('DOMContentLoaded', () => {
-        document.querySelectorAll('.transit-column').forEach(cell => {
-            const rawValue = cell.getAttribute('data-raw');
-            cell.textContent = sanitizeTransit(rawValue);
-        });
-    });
-</script>
 </body>
 
 </html>

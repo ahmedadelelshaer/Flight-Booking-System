@@ -12,7 +12,7 @@ if (!isset($_SESSION['id']) || $_SESSION['type'] != 'passenger') {
 
 // Fetch passenger data
 $userId = $_SESSION['id'];
-$stmt = $conn->prepare("SELECT name, email, photo,passport_img tel FROM user WHERE id = ?");
+$stmt = $conn->prepare("SELECT name, email, photo,passport_img tel FROM passenger WHERE id = ?");
 $stmt->execute([$userId]);
 $profile = $stmt->fetch();
 

@@ -12,7 +12,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = trim($_POST["email"]);
     $password = trim($_POST["password"]);
     $tel = trim($_POST["tel"]);
-    $account = trim($_POST["account"]);
+    $account_number = trim($_POST["account_number"]);
     $type = trim($_POST["type"]);
 
     // Validate inputs
@@ -24,7 +24,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $password_err = "Please enter a password.";
     if (empty($tel))
         $tel_err = "Please enter a phone number.";
-    if (empty($account))
+    if (empty($account_number))
         $account_err = "Please enter an account.";
     if (empty($type))
         $type_err = "Please select a user type.";
@@ -36,7 +36,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             'email' => $email,
             'password' => $password,
             'tel' => $tel,
-            'account' => $account,
+            'account_number' => $account_number,
             'type' => $type
         ];
 
@@ -89,8 +89,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             <small class="text-danger"><?php echo $tel_err; ?></small>
                         </div>
                         <div class="form-group mb-3">
-                            <label for="account">Account</label>
-                            <input type="text" name="account" id="account" class="form-control" required>
+                            <label for="account_number">Account Number</label>
+                            <input type="text" name="account_number" id="account_number" class="form-control" required>
                             <small class="text-danger"><?php echo $account_err; ?></small>
                         </div>
                         <div class="form-group mb-3">

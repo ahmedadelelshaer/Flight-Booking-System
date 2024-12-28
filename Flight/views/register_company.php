@@ -8,37 +8,44 @@ if (!isset($_SESSION['user_data'])) {
 }
 
 // Initialize variables and errors
-$photo = $passportImg = "";
-$photo_err = $passportImg_err = "";
+$logoImg = $bio = $address = "";
+$logoImg_err = $bio_err = $address_err = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    if (empty($_FILES["photo"]["name"])) {
-        $photo_err = "Please upload a photo.";
+    // Validate logo image
+    if (empty($_FILES["logo_img"]["name"])) {
+        $logoImg_err = "Please upload a company logo.";
     } else {
-        $photo = $_FILES["photo"]["name"];
-        move_uploaded_file($_FILES["photo"]["tmp_name"], "../images/" . $photo);
+        $logoImg = $_FILES["logo_img"]["name"];
+        move_uploaded_file($_FILES["logo_img"]["tmp_name"], "../images/" . $logoImg); // Move to the desired folder
     }
 
-    if (empty($_FILES["passport_img"]["name"])) {
-        $passportImg_err = "Please upload a passport image.";
+    // Validate bio
+    if (empty(trim($_POST["bio"]))) {
+        $bio_err = "Please provide a company bio.";
     } else {
-        $passportImg = $_FILES["passport_img"]["name"];
-        move_uploaded_file($_FILES["passport_img"]["tmp_name"], "../images/" . $passportImg);
+        $bio = trim($_POST["bio"]);
     }
 
-    if (empty($photo_err) && empty($passportImg_err)) {
+    // Validate address
+    if (empty(trim($_POST["address"]))) {
+        $address_err = "Please provide a company address.";
+    } else {
+        $address = trim($_POST["address"]);
+    }
+
+    if (empty($logoImg_err) && empty($bio_err) && empty($address_err)) {
         // Retrieve session data
         $userData = $_SESSION['user_data'];
         $name = $userData['name'];
         $email = $userData['email'];
         $password = $userData['password'];
         $tel = $userData['tel'];
-        $account = $userData['account'];
+        $account_number = $userData['account_number'];
         $type = $userData['type'];
 
-        // Call the register function
-        $registerSuccess = register($name, $email, $password, $tel, $account, $type, $photo, $passportImg);
-
+        // Call the register function, passing the logo image as logo_img
+        $registerSuccess = registerCompany($name, $email, $password, $tel, $account_number, $bio, $address, $logoImg);
         if ($registerSuccess) {
             session_destroy(); // Clear session
             header("Location: login.php"); // Redirect to login page
@@ -47,8 +54,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             echo "<div class='alert alert-danger text-center'>Registration failed. Email or name already exists.</div>";
         }
     }
-}
-?>
+}?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -56,7 +62,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Passenger Registration</title>
+    <title>Company Registration</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
@@ -89,20 +95,27 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <div class="row justify-content-center">
             <div class="col-md-6">
                 <div class="form-container">
-                    <h2 class="text-center mb-4">Passenger Registration</h2>
+                    <h2 class="text-center mb-4">Company Registration</h2>
                     <form method="POST" action="" enctype="multipart/form-data">
                         <div class="form-group mb-3">
-                            <label for="photo">Photo</label>
-                            <input type="file" name="photo" id="photo" class="form-control" required>
-                            <?php if (!empty($photo_err)): ?>
-                                <small class="text-danger"><?php echo $photo_err; ?></small>
+                            <label for="logo_img">Company Logo</label>
+                            <input type="file" name="logo_img" id="logo_img" class="form-control" required>
+                            <?php if (!empty($logoImg_err)): ?>
+                                <small class="text-danger"><?php echo $logoImg_err; ?></small>
                             <?php endif; ?>
                         </div>
                         <div class="form-group mb-3">
-                            <label for="passport_img">Passport Image</label>
-                            <input type="file" name="passport_img" id="passport_img" class="form-control" required>
-                            <?php if (!empty($passportImg_err)): ?>
-                                <small class="text-danger"><?php echo $passportImg_err; ?></small>
+                            <label for="bio">Company Bio</label>
+                            <textarea name="bio" id="bio" class="form-control" rows="4" required></textarea>
+                            <?php if (!empty($bio_err)): ?>
+                                <small class="text-danger"><?php echo $bio_err; ?></small>
+                            <?php endif; ?>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="address">Company Address</label>
+                            <textarea name="address" id="address" class="form-control" rows="4" required></textarea>
+                            <?php if (!empty($address_err)): ?>
+                                <small class="text-danger"><?php echo $address_err; ?></small>
                             <?php endif; ?>
                         </div>
                         <button type="submit" class="btn btn-primary w-100">Complete Registration</button>

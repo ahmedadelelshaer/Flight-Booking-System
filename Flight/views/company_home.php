@@ -237,7 +237,7 @@ if (isset($_POST['cancel_flight'])) {
                         <td><?= htmlspecialchars($flight['start_datetime']) ?></td>
                         <td><?= htmlspecialchars($flight['end_datetime']) ?></td>
                         <td>
-                            <button class="btn-view-flight">View Details</button>
+                            <a href="flight_details_comp.php?flight_id=<?= htmlspecialchars($flight['id']) ?>" class="btn btn-primary btn-view-flight">View Details</a>
                             <form method="POST" style="display:inline;">
                                 <input type="hidden" name="flight_id" value="<?= htmlspecialchars($flight['id']) ?>">
                                 <button type="submit" name="cancel_flight" class="btn btn-danger btn-cancel-flight">Cancel</button>

@@ -16,6 +16,14 @@ $companyId = $_SESSION['id'];
 $stmt = $conn->prepare("SELECT name, bio, address, logo_img FROM company WHERE id = ?");
 $stmt->execute([$companyId]);
 $company = $stmt->fetch();
+
+if (isset($_GET['logout'])) {
+    session_unset();
+    session_destroy();
+    header("Location: login.php");
+    exit();
+}
+
 // Check if the form is submitted
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Get the form data
@@ -27,8 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $passengerLimit = $_POST['passenger_limit'];
     $start_datetime = $_POST['start_datetime'];
     $end_datetime = $_POST['end_datetime'];
-
-    // Retrieve the company_id from the session
+// Logout logic
     if (!isset($_SESSION['company_id'])) {
         $errorMessage = "You must be logged in to add a flight.";
     } else {

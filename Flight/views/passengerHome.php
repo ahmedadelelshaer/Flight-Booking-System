@@ -59,6 +59,8 @@ if (isset($_GET['logout'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Passenger Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
     <style>
         body {
             background-color: #f4f7fa;
@@ -174,7 +176,9 @@ if (isset($_GET['logout'])) {
 <div class="navbar">
     <a href="profile.php" class="profile-btn">Profile</a>
     <a href="#">Flights</a>
-    <a href="?logout=true" class="logout-btn">Logout</a>
+    <a href="?logout=true" class="btn-logout">Logout <i class="fas fa-sign-out-alt"></i></a>
+    <a href="notifications.php" class="btn btn-warning"><i class="fas fa-bell"></i></a>
+
 </div>
 
 <div class="container">

@@ -125,9 +125,9 @@ class Flight
 
         if ($flight) {
             $fees = $flight['fees'];  // Fees to be added to account_number
-
             foreach ($passengers as $passenger) {
                 // Add flight fees to the passenger's account_number
+             
                 $this->refundPassenger($passenger['id'], $passenger['account_number'], $fees);
             }
 
@@ -145,7 +145,8 @@ class Flight
     {
         // Add flight fees to the passenger's account_number
         $newAccountNumber = $currentAccountNumber + $fees;
-        $stmt = $this->conn->prepare("UPDATE passengers SET account_number = :new_account_number WHERE id = :id");
+        $sql = "UPDATE passenger SET account_number = :new_account_number WHERE id = :id";
+        $stmt = $this->conn->prepare($sql)  ;
         $stmt->execute(['new_account_number' => $newAccountNumber, 'id' => $passengerId]);
     }
     public function processPaymentAndBookFlight($flightId, $userId, $paymentType)

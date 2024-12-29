@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once '../models/Flight.php'; // Assuming the Flight model is loaded
+require '../models/MessageModel.php'; // Assuming the MessageModel is loaded
 
 // Check if flight ID is provided in the query string
 if (!isset($_GET['id'])) {
@@ -26,6 +27,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $modalType = 'success';  // Success modal
         } else {
             $flightStatusMessage = "You have already taken this flight!";
+            $modalType = 'danger';  // Error modal
+        }
+    }
+
+    // Handle the message sending action
+    if (isset($_POST['send_msg']) && !empty($flightId)) {
+        $userId = $_SESSION['id']; // Get the user ID from session
+        $messageContent = $_POST['message']; // Get the message content
+
+        $messageModel = new MessageModel();
+        $date = date('Y-m-d H:i:s');
+        $result = $messageModel->Send_Message($userId, $flightId, $messageContent,$date);
+
+        if ($result) {
+            $flightStatusMessage = "Message sent successfully!";
+            $modalType = 'success';  // Success modal
+        } else {
+            $flightStatusMessage = "Failed to send message!";
             $modalType = 'danger';  // Error modal
         }
     }
@@ -98,16 +117,43 @@ if ($flight):
             <p class="card-text"><strong>Start Time:</strong> <?= htmlspecialchars($flight['start_datetime']) ?></p>
             <p class="card-text"><strong>End Time:</strong> <?= htmlspecialchars($flight['end_datetime']) ?></p>
             <a href="company_home.php" class="btn btn-secondary">Back to Home</a>
-            <?php if (!$flight['is_completed'] && !isset($flightStatusMessage)): ?>
-                <form method="POST" action="paymentSelection.php?id=<?php echo htmlspecialchars($flightId); ?>">
+            <?php if (!$flight['is_completed']): ?>
+                <form method="POST" action="flight_details.php?id=<?php echo htmlspecialchars($flightId); ?>">
                     <input type="hidden" name="take_flight" value="1">
                     <button type="submit" class="btn btn-danger mt-3">Take It?</button>
                 </form>
             <?php endif; ?>
+            
+            <button type="button" class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#messageModal">
+                Send Message
+            </button>
         </div>
     </div>
 </div>
 <?php endif; ?>
+
+<!-- Modal for Sending Message -->
+<div class="modal fade" id="messageModal" tabindex="-1" aria-labelledby="messageModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="messageModalLabel">Send a Message</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="flight_details.php?id=<?php echo htmlspecialchars($flightId); ?>">
+                    <input type="hidden" name="send_msg" value="1">
+                    <div class="mb-3">
+                        <label for="messageContent" class="form-label">Your Message</label>
+                        <textarea class="form-control" id="messageContent" name="message" rows="3" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Send</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Modal for Success or Error Message -->
 <?php if (isset($flightStatusMessage)): ?>
     <div class="modal fade" id="statusModal" tabindex="-1" aria-labelledby="statusModalLabel" aria-hidden="true">
@@ -139,23 +185,6 @@ if ($flight):
     });
     myModal.show();
     <?php endif; ?>
-</script>
-<script>
-    // Function to sanitize transit values
-    function sanitizeTransit(transit) {
-        if (!transit) return 'No Transit'; // Handle empty or null values
-
-        // Remove unwanted characters and return the cleaned string
-        return transit.replace(/[\\"[\]]/g, '').trim();
-    }
-
-    // Apply the function to sanitize transit columns dynamically
-    document.addEventListener('DOMContentLoaded', () => {
-        document.querySelectorAll('.transit-column').forEach(cell => {
-            const rawValue = cell.getAttribute('data-raw');
-            cell.textContent = sanitizeTransit(rawValue);
-        });
-    });
 </script>
 </body>
 

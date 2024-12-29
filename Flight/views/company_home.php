@@ -183,6 +183,7 @@ if (isset($_POST['cancel_flight'])) {
             <a href="company_profile.php" class="btn btn-info">Profile <i class="fas fa-user"></i></a>
             <a href="add_flight.php" class="btn btn-success">Add Flight <i class="fas fa-plane-departure"></i></a>
             <a href="?logout=true" class="btn-logout">Logout <i class="fas fa-sign-out-alt"></i></a>
+            <a href="notifications.php" class="btn btn-warning"><i class="fas fa-bell"></i></a>
         </div>
     </div>
 </div>

@@ -1,8 +1,10 @@
 <?php
 session_start();
-require_once '../php/includes/db.php';
+require_once '../php/includes/db.php'; // Include your DB connection
+require_once '../models/Flight.php'; // Assuming you have a Flight model file
 
 $conn = connectToDB();
+$flightModel = new Flight($conn);
 
 // Check if the user is logged in and is of type 'company'
 if (!isset($_SESSION['id']) || $_SESSION['type'] !== 'company') {
@@ -19,20 +21,14 @@ if (!isset($_GET['flight_id'])) {
 $flightId = $_GET['flight_id'];
 
 // Fetch flight details
-$stmt = $conn->prepare("SELECT * FROM flights WHERE id = ?");
-$stmt->execute([$flightId]);
-$flight = $stmt->fetch(PDO::FETCH_ASSOC);
+$flight = $flightModel->getFlightDetails($flightId);
 
-if (!$flight) {
-    echo "<script>alert('Flight not found.'); window.location.href = 'company_home.php';</script>";
-    exit();
-}
+// Fetch pending passengers
+$pendingPassengers = $flightModel->getPendingPassengers($flightId);
 
-// Decode transit cities
-$transit = !empty($flight['transit']) ? json_decode($flight['transit'], true) : [];
-$transitCities = is_array($transit) ? implode(', ', $transit) : 'No Transit';
+// Fetch registered passengers
+$registeredPassengers = $flightModel->getRegisteredPassengers($flightId);
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -88,8 +84,50 @@ if ($flight):
                 <p class="card-text transit-column" data-raw="<?= htmlspecialchars($flight['transit']) ?>">
                     <?= htmlspecialchars($transitCities) ?>
                 </p>
+                <p class="card-text"><strong>Destination:</strong> <?= htmlspecialchars($flight['destination']) ?></p>
                 <p class="card-text"><strong>Start Time:</strong> <?= htmlspecialchars($flight['start_datetime']) ?></p>
                 <p class="card-text"><strong>End Time:</strong> <?= htmlspecialchars($flight['end_datetime']) ?></p>
+
+                <!-- Pending Passengers List -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h4>Pending Passengers</h4>
+                    </div>
+                    <div class="card-body">
+                        <?php if (empty($pendingPassengers)): ?>
+                            <p>No pending passengers.</p>
+                        <?php else: ?>
+                            <ul class="list-group">
+                                <?php foreach ($pendingPassengers as $passenger): ?>
+                                    <li class="list-group-item">
+                                        <?= htmlspecialchars($passenger['name']) ?> (ID: <?= htmlspecialchars($passenger['id']) ?>)
+                                    </li>
+                                <?php endforeach; ?>
+                            </ul>
+                        <?php endif; ?>
+                    </div>
+                </div>
+
+                <!-- Registered Passengers List -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h4>Registered Passengers</h4>
+                    </div>
+                    <div class="card-body">
+                        <?php if (empty($registeredPassengers)): ?>
+                            <p>No registered passengers.</p>
+                        <?php else: ?>
+                            <ul class="list-group">
+                                <?php foreach ($registeredPassengers as $passenger): ?>
+                                    <li class="list-group-item">
+                                        <?= htmlspecialchars($passenger['name']) ?> (ID: <?= htmlspecialchars($passenger['id']) ?>)
+                                    </li>
+                                <?php endforeach; ?>
+                            </ul>
+                        <?php endif; ?>
+                    </div>
+                </div>
+
                 <a href="company_home.php" class="btn btn-secondary">Back to Home</a>
             </div>
         </div>

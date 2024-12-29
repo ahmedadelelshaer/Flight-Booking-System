@@ -1,21 +1,13 @@
 <?php
-<<<<<<< HEAD
 include_once '../php/includes/db.php';
 
-=======
-include_once("../php/includes/db.php");
->>>>>>> 59638d73e1ba93e4e8101720324e050d1a759eb7
 class Flight
 {
     private $conn;
 
     public function __construct()
     {
-<<<<<<< HEAD
         $this->conn = connectToDB();
-=======
-        $this->conn = connectToDB(); // Assuming a database connection function exists
->>>>>>> 59638d73e1ba93e4e8101720324e050d1a759eb7
     }
 
     // Add a new flight
@@ -37,38 +29,6 @@ class Flight
         $stmt->execute(['flight_id' => $flightId, 'passenger_id' => $passengerId]);
         return true; // Return true if the insertion is successful
     }
-<<<<<<< HEAD
-=======
-    public function processPaymentAndBookFlight($flightId, $userId, $paymentType)
-    {   
-        if ($paymentType == 'cash') {
-            $paymentSuccess = true;
-            return $this->addflighttouser($flightId, $userId);
-
-        } else {
-        $sql="SELECT flights.fees ,passenger.account_number FROM flights, passenger WHERE flights.id = :flightid And passenger.id = :passid";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->execute(['flightid' => $flightId, 'passid' => $userId]);
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        $fees = $result['fees'];
-        $account_number = $result['account_number'];
-        if ($fees > $account_number) {
-            $paymentSuccess= false;
-        }
-        else{
-            $sql = "UPDATE passenger SET account_number = account_number - :fees WHERE id = :passid";
-            $stmt = $this->conn->prepare($sql);
-            $stmt->execute(['fees' => $fees, 'passid' => $userId]);
-            $paymentSuccess = true;
-        }
-        if ($paymentSuccess) {
-            // Mark the flight as booked for the user
-            return $this->addflighttouser($flightId, $userId);
-        }
-    }
-        return false;
-    }
->>>>>>> 59638d73e1ba93e4e8101720324e050d1a759eb7
     public function addFlight($name, $source, $destination, $transit, $fees, $passengerLimit, $start_datetime, $end_datetime)
     {
         if (!isset($_SESSION['company_id'])) {
@@ -105,51 +65,8 @@ class Flight
 
         return $this->conn->lastInsertId();
     }
-    public function cancelFlight($flightId)
-    {
-        // Fetch passengers associated with the flight from the passengers_flights table
-        $passengerStmt = $this->conn->prepare("
-        SELECT p.id, p.account_number 
-        FROM passenger p
-        JOIN passengers_flights pf ON p.id = pf.passenger_id
-        WHERE pf.flight_id = :flight_id
-    ");
-        $passengerStmt->execute(['flight_id' => $flightId]);
-        $passengers = $passengerStmt->fetchAll(PDO::FETCH_ASSOC);
 
-<<<<<<< HEAD
     // Get flight details by ID
-=======
-        // Fetch the flight fees
-        $flightStmt = $this->conn->prepare("SELECT fees FROM flights WHERE id = :flight_id");
-        $flightStmt->execute(['flight_id' => $flightId]);
-        $flight = $flightStmt->fetch(PDO::FETCH_ASSOC);
-
-        if ($flight) {
-            $fees = $flight['fees'];  // Fees to be added to account_number
-
-            foreach ($passengers as $passenger) {
-                // Add flight fees to the passenger's account_number
-                $this->refundPassenger($passenger['id'], $passenger['account_number'], $fees);
-            }
-
-            // Delete the flight
-            $stmt = $this->conn->prepare("DELETE FROM flights WHERE id = :id");
-            $stmt->execute(['id' => $flightId]);
-
-            return $stmt->rowCount() > 0;
-        }
-
-        return false;
-    }
-
-    /**
-     * Get flight details by ID.
-     *
-     * @param int $flightId
-     * @return array|null Flight details or null if not found
-     */
->>>>>>> 59638d73e1ba93e4e8101720324e050d1a759eb7
     public function getFlightDetails($flightId)
     {
         $stmt = $this->conn->prepare("SELECT * FROM flights WHERE id = :id");
@@ -162,67 +79,9 @@ class Flight
 
         return $flight;
     }
-<<<<<<< HEAD
     // Get pending passengers for a flight
-=======
 
-    /**
-     * Get a list of pending passengers for a specific flight.
-     *
-     * @param int $flightId
-     * @return array List of pending passengers
-     */
->>>>>>> 59638d73e1ba93e4e8101720324e050d1a759eb7
-    public function getPendingPassengers($flightId)
-    {
-        $stmt = $this->conn->prepare("SELECT * FROM passengers WHERE flight_id = :flight_id AND status = 'pending'");
-        $stmt->execute(['flight_id' => $flightId]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
 
-<<<<<<< HEAD
-=======
-    /**
-     * Get a list of registered passengers for a specific flight.
-     *
-     * @param int $flightId
-     * @return array List of registered passengers
-     */
-    public function getRegisteredPassengers($flightId)
-    {
-        $stmt = $this->conn->prepare("SELECT * FROM passengers WHERE flight_id = :flight_id AND status = 'registered'");
-        $stmt->execute(['flight_id' => $flightId]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-
-    /**
-     * Cancel a flight and refund fees to passengers.
-     *
-     * @param int $flightId
-     * @return bool True if flight is successfully canceled, false otherwise
-     */
-    
-    /**
-     * Refund fees to a passenger.
-     *
-     * @param int $passengerId
-     * @param float $fees
-     * @return void
-     */
-    private function refundPassenger($passengerId, $fees)
-    {
-        $stmt = $this->conn->prepare("UPDATE passengers SET account_balance = account_balance + :fees WHERE id = :id");
-        $stmt->execute(['fees' => $fees, 'id' => $passengerId]);
-    }
-
-    /**
-     * Update flight details.
-     *
-     * @param int $flightId
-     * @param array $flightData
-     * @return bool True if the update was successful, false otherwise
-     */
->>>>>>> 59638d73e1ba93e4e8101720324e050d1a759eb7
     public function updateFlight($flightId, $flightData)
     {
         $sql = "UPDATE flights SET 
@@ -243,20 +102,8 @@ class Flight
 
         return $stmt->execute($flightData);
     }
-<<<<<<< HEAD
     // Get registered passengers for a flight
-    public function getRegisteredPassengers($flightId)
-    {
-        // Modify the query to join the passengers_flights table and filter by status
-        $stmt = $this->conn->prepare("
-            SELECT p.* 
-            FROM passenger p
-            JOIN passengers_flights pf ON p.id = pf.passenger_id
-            WHERE pf.flight_id = :flight_id AND p.status = 'registered'
-        ");
-        $stmt->execute(['flight_id' => $flightId]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
+
 
     // Cancel a flight and refund fees to passengers
     public function cancelFlight($flightId)
@@ -305,7 +152,11 @@ class Flight
     {
         if ($paymentType == 'cash') {
             $paymentSuccess = true;
-            return $this->addflighttouser($flightId, $userId);
+            $this->addflighttouser($flightId, $userId);
+            $sql = "UPDATE passengers_flights  SET status = 'pending' WHERE flight_id = :flightid And passenger_id = :passid ";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->execute(['flightid' => $flightId, 'passid' => $userId]);
+            return true;
 
         } else {
             $sql="SELECT flights.fees ,passenger.account_number FROM flights, passenger WHERE flights.id = :flightid And passenger.id = :passid";
@@ -324,30 +175,78 @@ class Flight
                 $paymentSuccess = true;
             }
             if ($paymentSuccess) {
+                $this->addflighttouser($flightId, $userId);
+                $sql = "UPDATE passengers_flights  SET status = 'registered' WHERE flight_id = :flightid And passenger_id = :passid ";
+                $stmt = $this->conn->prepare($sql);
+                $stmt->execute(['flightid' => $flightId, 'passid' => $userId]);
                 // Mark the flight as booked for the user
-                return $this->addflighttouser($flightId, $userId);
+                $updateLimitSql = "UPDATE flights 
+                   SET passenger_limit = passenger_limit - 1 
+                   WHERE id = :flightid AND passenger_limit > 0";
+                $limitStmt = $this->conn->prepare($updateLimitSql);
+                $limitStmt->execute([':flightid' => $flightId]);
+
+                $check_is_completedSql = "UPDATE flights 
+                   SET is_completed = 1 
+                   WHERE id = :flightid AND passenger_limit = 0";
+                $checkStmt = $this->conn->prepare($check_is_completedSql);
+                $checkStmt->execute([':flightid' => $flightId]);
+                return true;
             }
         }
         return false;
     }
+    public function getPendingPassengers($flightId)
+    {
+        $query = "SELECT p.id, p.name, pf.status FROM passenger p
+                  JOIN passengers_flights pf ON p.id = pf.passenger_id
+                  WHERE pf.flight_id = :flight_id AND pf.status = 'pending'";
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute(['flight_id' => $flightId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC); // Return as an associative array
+    }
+
+    // Method to fetch registered passengers
+    public function getRegisteredPassengers($flightId)
+    {
+        $query = "SELECT p.id, p.name, pf.status FROM passenger p
+                  JOIN passengers_flights pf ON p.id = pf.passenger_id
+                  WHERE pf.flight_id = :flight_id AND pf.status = 'registered'";
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute(['flight_id' => $flightId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC); // Return as an associative array
+    }
+    public function updateFlightCompletionStatus($flightId)
+    {
+        // Fetch the flight details including the passenger limit and registered passengers count
+        $stmt = $this->conn->prepare("
+        SELECT passenger_limit, 
+            (SELECT COUNT(*) 
+             FROM passengers_flights pf 
+             WHERE pf.flight_id = :flight_id AND pf.status = 'registered') AS registered_count 
+        FROM flights 
+        WHERE id = :flight_id
+    ");
+        $stmt->execute(['flight_id' => $flightId]);
+        $flightData = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($flightData) {
+            $passengerLimit = $flightData['passenger_limit'];
+            $registeredCount = $flightData['registered_count'];
+
+            // Check if the passenger limit is reached
+            if ($registeredCount >= $passengerLimit) {
+                // Update the flight's is_complete field to 1 if the limit is reached
+                $updateStmt = $this->conn->prepare("UPDATE flights SET is_complete = 1 WHERE id = :flight_id");
+                $updateStmt->execute(['flight_id' => $flightId]);
+                return true; // Successfully updated the flight completion status
+            }
+        }
+
+        return false; // No update needed, passenger limit is not reached
+    }
+
 
 }
 
 ?>
-=======
-
-    /**
-     * Delete a flight by ID.
-     *
-     * @param int $flightId
-     * @return bool True if the flight was deleted, false otherwise
-     */
-    public function deleteFlight($flightId)
-    {
-        $stmt = $this->conn->prepare("DELETE FROM flights WHERE id = :id");
-        $stmt->execute(['id' => $flightId]);
-
-        return $stmt->rowCount() > 0;
-    }
-}
->>>>>>> 59638d73e1ba93e4e8101720324e050d1a759eb7

@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $_SESSION['email'] = $data_check['email'];
         $_SESSION['name'] = $data_check['name'];
 
-        // Detect user type
+        // Detect user type and store company ID if it's a company
         if (!empty($data_check['photo'])) {
             $_SESSION['type'] = 'passenger'; // It's a passenger
         } elseif (!empty($data_check['bio'])) {
@@ -85,7 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     </div>
                     <button type="submit" class="btn btn-primary">Login</button>
                 </form>
-                <p class="mt-3">Don't have an account? <a href="register.php">Register here</a></p>
+                <p class="mt-3">Don't have an account? <a href="register_passenger1.php">Register here</a></p>
                 <p class="mt-3">Already logged in? <a href="logout.php">Log out</a></p>
             </div>
         </div>

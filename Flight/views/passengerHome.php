@@ -258,9 +258,17 @@ if (isset($_GET['logout'])) {
                 <input type="text" name="from" placeholder="From"
                        value="<?php echo isset($_GET['from']) ? htmlspecialchars($_GET['from']) : ''; ?>" required>
             </div>
+<<<<<<< HEAD
             <div class="col-md-4">
                 <input type="text" name="to" placeholder="To"
                        value="<?php echo isset($_GET['to']) ? htmlspecialchars($_GET['to']) : ''; ?>" required>
+=======
+            <div class="col-md-8">
+                <h2><?php echo htmlspecialchars($profile['name']); ?></h2>
+                <p>Email: <?php echo htmlspecialchars($profile['email']); ?></p>
+                <p>Phone: <?php echo htmlspecialchars($profile['tel']); ?></p>
+                <p>Balance <?php echo htmlspecialchars($profile['account_number']);?>   </p>
+>>>>>>> 59638d73e1ba93e4e8101720324e050d1a759eb7
             </div>
             <button type="submit" class="btn btn-success col-md-2">Search</button>
         </form>

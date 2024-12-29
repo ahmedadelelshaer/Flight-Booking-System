@@ -50,7 +50,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -82,6 +81,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             background-color: #457b9d;
             border-color: #457b9d;
         }
+
+        .btn-back {
+            background-color: #6c757d;
+            border-color: #6c757d;
+            margin-top: 10px;
+        }
+
+        .btn-back:hover {
+            background-color: #5a6268;
+            border-color: #545b62;
+        }
     </style>
 </head>
 
@@ -108,6 +118,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         </div>
                         <button type="submit" class="btn btn-primary w-100">Complete Registration</button>
                     </form>
+                    <a href="register.php" class="btn btn-back w-100">Back</a>
                 </div>
             </div>
         </div>

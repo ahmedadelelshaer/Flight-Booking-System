@@ -79,6 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 
 <body>
+<<<<<<< HEAD
 <?php
 // Assuming $flight contains the selected flight details as fetched earlier
 if ($flight):
@@ -104,6 +105,40 @@ if ($flight):
                     <button type="submit" class="btn btn-danger mt-3">Take It?</button>
                 </form>
             <?php endif; ?>
+=======
+
+    <div class="container mt-5">
+        <h2 class="text-center">Flight Details</h2>
+
+        <div class="card">
+            <div class="card-body">
+                <h3 class="mb-3">Flight ID: <?php echo htmlspecialchars($flight['id']); ?></h3>
+                <p><strong>Name:</strong> <?php echo htmlspecialchars($flight['name']); ?></p>
+                <p><strong>Transit:</strong> <?php echo htmlspecialchars($flight['transit']); ?></p>
+                <td class="transit-column" data-raw="<?= htmlspecialchars($flight['transit']) ?>"><?= $transitCities ?></td>
+                <p><strong>Fees:</strong> $<?php echo htmlspecialchars(number_format($flight['fees'], 2)); ?></p>
+                <p><strong>Time:</strong>
+                    <?php echo htmlspecialchars($flight['start_datetime'] . ' - ' . $flight['end_datetime']); ?></p>
+                <p><strong>Status:</strong> <?php echo $flight['is_completed'] ? 'Completed' : 'Pending'; ?></p>
+
+                <h4 class="mt-4">Passengers</h4>
+                <ul>
+                    <li><strong>Registered:</strong> <?php echo htmlspecialchars($flight['passengers_registered']); ?>
+                    </li>
+                    <li><strong>Pending:</strong> <?php echo htmlspecialchars($flight['passengers_pending']); ?></li>
+                </ul>
+
+                <?php if (!$flight['is_completed'] && !isset($flightStatusMessage)): ?>
+                    <form method="POST" action="paymentSelection.php?id=<?php echo htmlspecialchars($flightId); ?>">
+                        <input type="hidden" name="take_flight" value="1">
+                        <button type="submit" class="btn btn-danger mt-3">Take It?</button>
+                    </form>
+                <?php endif; ?>
+
+                <!-- Back to Passenger Home Button -->
+                <a href="passengerHome.php" class="btn btn-primary mt-3">Back to Home</a>
+            </div>
+>>>>>>> 59638d73e1ba93e4e8101720324e050d1a759eb7
         </div>
     </div>
 </div>
@@ -130,6 +165,7 @@ if ($flight):
     </div>
 <?php endif; ?>
 
+<<<<<<< HEAD
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     // Show the modal when the page loads
@@ -141,6 +177,19 @@ if ($flight):
     <?php endif; ?>
 </script>
 <script>
+=======
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Show the modal when the page loads
+        <?php if (isset($flightStatusMessage)): ?>
+            var myModal = new bootstrap.Modal(document.getElementById('statusModal'), {
+                keyboard: false
+            });
+            myModal.show();
+        <?php endif; ?>
+    </script>
+    <script>
+>>>>>>> 59638d73e1ba93e4e8101720324e050d1a759eb7
     // Function to sanitize transit values
     function sanitizeTransit(transit) {
         if (!transit) return 'No Transit'; // Handle empty or null values

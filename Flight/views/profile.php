@@ -13,6 +13,13 @@ $stmt = $conn->prepare("SELECT * FROM passenger WHERE id = ?");
 $stmt->execute([$user_id]);
 $passenger = $stmt->fetch(PDO::FETCH_ASSOC);
 
+if (isset($_GET['logout'])) {
+    session_unset();
+    session_destroy();
+    header("Location: login.php");
+    exit();
+}
+
 // Handle form submission for updates
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = $_POST['name'];
@@ -60,40 +67,57 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             color: #333;
             margin: 0;
             padding: 0;
+            position: relative;
+        }
+
+        body::before {
+            content: "";
+            position: fixed; /* Make the background stay fixed */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('../images/pexels-victorfreitas-1381415.jpg') no-repeat center center/cover; /* Ensure the image covers the viewport */
+            background-attachment: fixed; /* Keep the image fixed while scrolling */
+            opacity: 30%; /* Adjust the opacity as needed */
+            z-index: -1; /* Ensure the image is behind the content */
         }
 
         .navbar {
-            background-color: #007bff;
-            padding: 15px;
-            border-radius: 10px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding: 10px 20px;
+            background-color: #10465a;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .navbar a {
             color: white;
+            font-size: 16px;
             text-decoration: none;
-            margin-right: 15px;
-            transition: color 0.3s;
+            margin-left: 15px;
+            padding: 10px 15px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
         }
 
         .navbar a:hover {
-            color: #ffdd57;
+            background-color: rgba(255, 255, 255, 0.15);
         }
 
         .container {
             max-width: 800px;
             margin: 50px auto;
             padding: 20px;
-            background: #fff;
+            background: rgba(255, 255, 255, 0.9); /* Slight transparency for better visibility */
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
         h1 {
             text-align: center;
-            color: #007bff;
+            color: #10465a;
             margin-bottom: 20px;
         }
 
@@ -107,7 +131,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         .profile-info strong {
-            color: #007bff;
+            color: #10465a;
         }
 
         .form-group {
@@ -129,19 +153,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         .form-group input:focus {
-            border-color: #007bff;
+            border-color: #10465a;
             outline: none;
         }
+
         .profile-photo {
-            align-items: top;
             width: 120px;
             height: 120px;
             border-radius: 50%;
             object-fit: cover;
             margin-right: 20px;
-        }
-        .profile-passport{
-
         }
 
         .form-group button {
@@ -167,13 +188,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             margin-top: 10px;
             border-radius: 5px;
         }
+
+
     </style>
 </head>
 <body>
 <!-- Navbar -->
 <div class="navbar">
     <a href="passengerHome.php">Dashboard</a>
-    <a href="#">Flights</a>
     <a href="?logout=true" class="logout-btn">Logout</a>
 </div>
 

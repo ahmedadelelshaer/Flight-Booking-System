@@ -59,113 +59,181 @@ if (isset($_GET['logout'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Passenger Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
     <style>
         body {
-            background-color: #f4f7fa;
             font-family: 'Arial', sans-serif;
+            background-color: #f4f7fa;
             color: #333;
+            margin: 0;
+            padding: 0;
+            position: relative;
         }
 
-        .container {
-            max-width: 1200px;
-            margin: 20px auto;
+        body::before {
+            content: "";
+            position: fixed; /* Make the background stay fixed */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('../images/pexels-ahmedmuntasir-912050.jpg') no-repeat center center/cover; /* Ensure the image covers the viewport */
+            background-attachment: fixed; /* Keep the image fixed while scrolling */
+            opacity: 30%; /* Adjust the opacity as needed */
+            z-index: -1; /* Ensure the image is behind the content */
         }
-
         .navbar {
-            background-color: #007bff;
-            padding: 15px;
-            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #10465a;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .navbar a {
             color: white;
+            font-size: 16px;
             text-decoration: none;
-            margin-right: 15px;
+            margin-left: 15px;
+            padding: 10px 15px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
         }
 
         .navbar a:hover {
-            text-decoration: underline;
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .header {
+            background: #10465a;
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+            border-radius: 10px;
+            margin-top: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: bold;
         }
 
         .profile-section {
-            display: block;
+            margin-top: 30px;
+            display: flex;
             align-items: center;
-            background-color: white;
+            gap: 20px;
             padding: 20px;
+            background-color: #ffffff;
             border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            margin-bottom: 30px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
         .profile-img {
-            width: 120px;
-            height: 120px;
             border-radius: 50%;
+            width: 150px;
+            height: 150px;
             object-fit: cover;
-            margin-right: 20px;
+        }
+
+        .profile-info h2 {
+            color: #10465a;
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .profile-info p {
+            font-size: 16px;
+            color: #555;
+            margin: 5px 0;
         }
 
         .section-title {
-            font-size: 1.5rem;
-            margin-bottom: 20px;
-            color: #007bff;
+            color: #10465a;
+            font-size: 20px;
+            margin-top: 40px;
+            font-weight: bold;
+            text-align: center;
         }
 
         .flights-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .flights-table th,
-        .flights-table td {
-            padding: 10px;
-            text-align: left;
-            border: 1px solid #ddd;
-            cursor: pointer;
+            margin-top: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
         .flights-table th {
-            background-color: #007bff;
+            background-color: #10465a;
             color: white;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .flights-table td {
+            padding: 10px;
+            text-align: center;
+            color: #333;
+            background-color: #ffffff;
         }
 
         .flights-table tr:hover {
             background-color: #f1f1f1;
-        }
-
-        .search-section {
-            background-color: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            margin-bottom: 30px;
-        }
-
-        .search-section input {
-            padding: 10px;
-            margin-right: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-
-        .search-section button {
-            padding: 10px 20px;
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 5px;
             cursor: pointer;
         }
 
-        .search-section button:hover {
-            background-color: #218838;
+        .btn {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .btn-success {
+            background-color: #10465a;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #0d3b4b;
+        }
+
+        .search-section {
+            margin-top: 40px;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-section input {
+            width: 100%;
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            transition: border-color 0.3s;
+        }
+
+        .search-section input:focus {
+            border-color: #10465a;
+            outline: none;
         }
 
         .placeholder-text {
-            color: #777;
-            font-size: 1rem;
+            color: #888;
+            font-size: 16px;
             text-align: center;
+            margin-top: 20px;
         }
+
+
+
     </style>
 </head>
 
@@ -173,8 +241,9 @@ if (isset($_GET['logout'])) {
 <!-- Navbar -->
 <div class="navbar">
     <a href="profile.php" class="profile-btn">Profile</a>
-    <a href="#">Flights</a>
-    <a href="?logout=true" class="logout-btn">Logout</a>
+    <a href="?logout=true" class="btn-logout">Logout <i class="fas fa-sign-out-alt"></i></a>
+    <a href="notifications.php" class="btn btn-warning"><i class="fas fa-bell"></i></a>
+
 </div>
 
 <div class="container">

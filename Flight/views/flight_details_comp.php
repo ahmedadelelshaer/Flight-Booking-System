@@ -38,8 +38,48 @@ $registeredPassengers = $flightModel->getRegisteredPassengers($flightId);
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            background-color: #f8f9fa;
-            font-family: Arial, sans-serif;
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f7fa;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            position: relative;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('../images/pexels-ahmedmuntasir-912050.jpg') no-repeat center center/cover;
+            background-attachment: fixed;
+            opacity: 30%;
+            z-index: -1;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #10465a;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar a {
+            color: white;
+            font-size: 16px;
+            text-decoration: none;
+            margin-left: 15px;
+            padding: 10px 15px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .navbar a:hover {
+            background-color: rgba(255, 255, 255, 0.15);
         }
 
         .details-container {
@@ -60,9 +100,67 @@ $registeredPassengers = $flightModel->getRegisteredPassengers($flightId);
             margin-bottom: 10px;
         }
 
+        .card-header {
+            background-color: #10465a;
+            color: white;
+            font-size: 18px;
+        }
+
+        .card-body {
+            background-color: #ffffff;
+        }
+
+        .card {
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .card .list-group-item {
+            border: none;
+            background-color: #f9f9f9;
+        }
+
+        .card .list-group-item:hover {
+            background-color: #ebebeb;
+        }
+
         .back-button {
             margin-top: 20px;
         }
+
+        .btn-secondary {
+            background-color: #10465a;
+            color: white;
+            border-radius: 5px;
+            padding: 10px 15px;
+            font-size: 16px;
+            text-decoration: none;
+            border: none;
+            transition: background-color 0.3s;
+        }
+
+        .btn-secondary:hover {
+            background-color: #08353e;
+            color: white;
+        }
+
+        a.btn-secondary {
+            text-decoration: none;
+        }
+
+        @media (max-width: 768px) {
+            .details-container {
+                margin-top: 20px;
+                padding: 15px;
+            }
+
+            .btn-secondary {
+                width: 100%;
+                padding: 12px;
+            }
+        }
+
     </style>
 </head>
 <body>

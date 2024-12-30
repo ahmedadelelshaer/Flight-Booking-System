@@ -2,7 +2,6 @@
 session_start();
 require_once '../models/Flight.php'; // Assuming the Flight model is loaded
 
-// Check if flight ID is provided in the query string
 if (!isset($_GET['id'])) {
     die("Flight ID is required.");
 }
@@ -12,6 +11,7 @@ $flightId = $_GET['id'];
 // Simulating data retrieval (replace with actual database query)
 $flightdata = new Flight();
 $flight = $flightdata->getFlightDetails($flightId);
+
 
 // Handle form submission for payment
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -42,25 +42,117 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            background-color: #f4f4f9;
-            font-family: Arial, sans-serif;
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f7fa;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            position: relative;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('../images/pexels-ahmedmuntasir-912050.jpg') no-repeat center center/cover;
+            background-attachment: fixed;
+            opacity: 0.3;
+            z-index: -1;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #10465a;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar a {
+            color: white;
+            font-size: 16px;
+            text-decoration: none;
+            margin-left: 15px;
+            padding: 10px 15px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .navbar a:hover {
+            background-color: rgba(255, 255, 255, 0.15);
         }
 
         .card {
-            margin-top: 20px;
+            margin: 20px auto;
+            max-width: 600px;
             border: none;
             border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .card-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #10465a;
+        }
+
+        .card-text {
+            font-size: 16px;
+            margin-bottom: 10px;
         }
 
         .btn-payment {
             width: 100%;
-            margin-top: 10px;
+            margin-top: 15px;
+            font-size: 16px;
+            padding: 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .btn-payment:hover {
+            opacity: 0.9;
+        }
+
+        .btn-danger {
+            background-color: #e43d12;
+            border: none;
+        }
+
+        .btn-primary {
+            background-color: #10465a;
+            border: none;
+        }
+
+        .btn-dark {
+            background-color: #333;
+            border: none;
+        }
+
+        .btn-dark:hover {
+            background-color: #555;
+        }
+
+        .btn-back {
+            margin-top: 20px;
+        }
+
+        .modal-content {
+            border-radius: 10px;
+        }
+
+        .modal-title {
+            color: #10465a;
         }
     </style>
 </head>
 
 <body>
+
 <?php
 // Assuming $flight contains the selected flight details as fetched earlier
 if ($flight):
@@ -76,10 +168,13 @@ $transitCities = is_array($transit) && !empty($transit) ? implode(', ', $transit
             <p class="card-text"><strong>Source:</strong> <?= htmlspecialchars($flight['source']) ?></p>
             <p class="card-text"><strong>Destination:</strong> <?= htmlspecialchars($flight['destination']) ?></p>
             <strong>Transit Cities:</strong>
-            <p class="card-text"><?= htmlspecialchars($transitCities) ?></p>
+            <p class="card-text transit-column" data-raw="<?= htmlspecialchars($flight['transit']) ?>">
+                <?= htmlspecialchars($transitCities) ?>
+            </p>
             <p class="card-text"><strong>Start Time:</strong> <?= htmlspecialchars($flight['start_datetime']) ?></p>
             <p class="card-text"><strong>End Time:</strong> <?= htmlspecialchars($flight['end_datetime']) ?></p>
-           
+
+
                 <?php if (!$flight['is_completed'] && !isset($flightStatusMessage)): ?>
                     <form method="POST">
                         <h5>Select Payment Method:</h5>
@@ -126,6 +221,24 @@ $transitCities = is_array($transit) && !empty($transit) ? implode(', ', $transit
             myModal.show();
         <?php endif; ?>
     </script>
+<script>
+    // Function to sanitize transit values
+    function sanitizeTransit(transit) {
+        if (!transit) return 'No Transit'; // Handle empty or null values
+
+        // Remove unwanted characters and return the cleaned string
+        return transit.replace(/[\\"[\]]/g, '').trim();
+    }
+
+    // Apply the function to sanitize the transit column dynamically
+    document.addEventListener('DOMContentLoaded', () => {
+        const transitElement = document.querySelector('.transit-column');
+        if (transitElement) {
+            const rawValue = transitElement.getAttribute('data-raw');
+            transitElement.textContent = sanitizeTransit(rawValue);
+        }
+    });
+</script>
 </body>
 
 </html>

@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once '../models/Flight.php'; // Assuming the Flight model is loaded
+require_once '../models/MessageModel.php'; // Assuming the Flight model is loaded
 
 // Check if flight ID is provided in the query string
 if (!isset($_GET['id'])) {
@@ -29,7 +30,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $modalType = 'danger';  // Error modal
         }
     }
+    if (isset($_POST['send_msg']) && !empty($flightId)) {
+        $userId = $_SESSION['id']; // Get the user ID from session
+        $messageContent = $_POST['message']; // Get the message content
+
+        $messageModel = new MessageModel();
+        $date = date('Y-m-d H:i:s');
+        $result = $messageModel->Send_Message($userId, $flightId, $messageContent,$date);
+
+        if ($result) {
+            $flightStatusMessage = "Message sent successfully!";
+            $modalType = 'success';  // Success modal
+        } else {
+            $flightStatusMessage = "Failed to send message!";
+            $modalType = 'danger';  // Error modal
+        }
+    }
+
 }
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -41,44 +60,119 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            background-color: #f4f4f9;
-            font-family: Arial, sans-serif;
+            font-family: 'Poppins', sans-serif;
+            background-color: #f4f7fa;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            position: relative;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('../images/pexels-ahmedmuntasir-912050.jpg') no-repeat center center/cover;
+            background-attachment: fixed;
+            opacity: 0.3;
+            z-index: -1;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #10465a;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar a {
+            color: white;
+            font-size: 16px;
+            text-decoration: none;
+            margin-left: 15px;
+            padding: 10px 15px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .navbar a:hover {
+            background-color: rgba(255, 255, 255, 0.15);
         }
 
         .card {
             margin-top: 20px;
             border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #10465a;
+        }
+
+        .card-text {
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        .btn {
+            font-size: 1rem;
+            font-weight: 500;
             border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, background-color 0.3s;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
         }
 
         .btn-danger {
-            background-color: #dc3545;
-            border-color: #dc3545;
+            background-color: #e74c3c;
+            border-color: #e74c3c;
         }
 
         .btn-danger:hover {
-            background-color: #c82333;
-            border-color: #bd2130;
+            background-color: #c0392b;
+            border-color: #c0392b;
         }
 
         .btn-primary {
-            background-color: #007bff;
-            border-color: #007bff;
+            background-color: #3498db;
+            border-color: #3498db;
         }
 
         .btn-primary:hover {
-            background-color: #0056b3;
-            border-color: #004085;
+            background-color: #2980b9;
+            border-color: #2980b9;
         }
 
-        .alert {
-            display: none;
+        .modal-header {
+            background-color: #10465a;
+            color: white;
         }
+
+        .modal-title {
+            font-size: 1.5rem;
+        }
+
+        .btn-close {
+            background-color: white;
+            color: #10465a;
+            border-radius: 50%;
+        }
+
     </style>
 </head>
 
 <body>
+
 <?php
 // Assuming $flight contains the selected flight details as fetched earlier
 if ($flight):
@@ -94,9 +188,12 @@ if ($flight):
             <p class="card-text"><strong>Source:</strong> <?= htmlspecialchars($flight['source']) ?></p>
             <p class="card-text"><strong>Destination:</strong> <?= htmlspecialchars($flight['destination']) ?></p>
             <strong>Transit Cities:</strong>
-            <p class="card-text"><?= htmlspecialchars($transitCities) ?></p>
+            <p class="card-text transit-column" data-raw="<?= htmlspecialchars($flight['transit']) ?>">
+                <?= htmlspecialchars($transitCities) ?>
+            </p>
             <p class="card-text"><strong>Start Time:</strong> <?= htmlspecialchars($flight['start_datetime']) ?></p>
             <p class="card-text"><strong>End Time:</strong> <?= htmlspecialchars($flight['end_datetime']) ?></p>
+
             <a href="company_home.php" class="btn btn-secondary">Back to Home</a>
             <?php if (!$flight['is_completed'] && !isset($flightStatusMessage)): ?>
                 <form method="POST" action="paymentSelection.php?id=<?php echo htmlspecialchars($flightId); ?>">
@@ -104,10 +201,36 @@ if ($flight):
                     <button type="submit" class="btn btn-danger mt-3">Take It?</button>
                 </form>
             <?php endif; ?>
+            <button type="button" class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#messageModal">
+                Send Message
+            </button>
         </div>
     </div>
 </div>
+
 <?php endif; ?>
+<!-- Modal for Sending Message -->
+<div class="modal fade" id="messageModal" tabindex="-1" aria-labelledby="messageModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="messageModalLabel">Send a Message</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="flight_details.php?id=<?php echo htmlspecialchars($flightId); ?>">
+                    <input type="hidden" name="send_msg" value="1">
+                    <div class="mb-3">
+                        <label for="messageContent" class="form-label">Your Message</label>
+                        <textarea class="form-control" id="messageContent" name="message" rows="3" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Send</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Modal for Success or Error Message -->
 <?php if (isset($flightStatusMessage)): ?>
     <div class="modal fade" id="statusModal" tabindex="-1" aria-labelledby="statusModalLabel" aria-hidden="true">

@@ -79,12 +79,29 @@ if (isset($_POST['update'])) {
 <style>
     /* Include any custom styles you need here */
     body {
-        background-color: #f8f9fa;
         font-family: 'Arial', sans-serif;
+        background-color: #f4f7fa;
+        color: #333;
+        margin: 0;
+        padding: 0;
+        position: relative;
+    }
+
+    body::before {
+        content: "";
+        position: fixed; /* Make the background stay fixed */
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: url('../images/pexels-ahmedmuntasir-912050.jpg') no-repeat center center/cover; /* Ensure the image covers the viewport */
+        background-attachment: fixed; /* Keep the image fixed while scrolling */
+        opacity: 25%; /* Adjust the opacity for a subtler background */
+        z-index: -1; /* Ensure the image is behind the content */
     }
 
     .header {
-        background: #10465a;
+        background: linear-gradient(to right, #2c3e50, #10465a); /* Gradient background */
         color: white;
         padding: 20px 0;
         border-bottom: 2px solid #ddd;
@@ -92,20 +109,23 @@ if (isset($_POST['update'])) {
 
     .header a {
         color: white;
-        font-size: 18px;
+        font-size: 16px;
         text-decoration: none;
-        padding: 5px 10px;
+        padding: 8px 15px;
         border-radius: 5px;
+        margin-left: 10px;
+        transition: background-color 0.3s ease, transform 0.3s ease;
     }
 
     .header a:hover {
-        background-color: rgba(255, 255, 255, 0.56);
-        color: white;
+        background-color: rgba(255, 255, 255, 0.15);
+        transform: scale(1.05); /* Slight scaling effect for hover */
     }
 
     .company-logo {
         max-width: 60px;
         height: auto;
+        margin-right: 15px;
     }
 
     .company-info {
@@ -136,16 +156,60 @@ if (isset($_POST['update'])) {
         font-size: 16px;
         cursor: pointer;
         border-radius: 5px;
+        transition: background-color 0.3s ease, transform 0.3s ease;
     }
 
     .btn-logout:hover {
         background-color: #c0392b;
+        transform: scale(1.05); /* Slight scaling effect for hover */
+    }
+
+    .flight-table {
+        margin-top: 40px;
     }
 
     .flight-table th {
-        background-color: #10465a;
+        background-color: #2c3e50;
         color: white;
     }
+
+    .flight-table td {
+        font-size: 14px;
+        color: #333;
+    }
+
+    .btn-view-flight {
+        color: white;
+        background-color: #3498db;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+
+    .btn-view-flight:hover {
+        background-color: #2980b9;
+        transform: scale(1.05); /* Slight scaling effect for hover */
+    }
+
+    .flight-card {
+        background: #ffffff;
+        padding: 20px;
+        margin: 10px;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    .flight-card h3 {
+        color: #10465a;
+    }
+
+    .flight-card p {
+        font-size: 14px;
+        color: #333;
+    }
+
+
 
     .form-container {
         background-color: white;

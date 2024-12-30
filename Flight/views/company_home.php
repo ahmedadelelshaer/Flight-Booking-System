@@ -59,12 +59,29 @@ if (isset($_POST['cancel_flight'])) {
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
     <style>
         body {
-            background-color: #f8f9fa;
             font-family: 'Arial', sans-serif;
+            background-color: #f4f7fa;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            position: relative;
+        }
+
+        body::before {
+            content: "";
+            position: fixed; /* Make the background stay fixed */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('../images/pexels-ahmedmuntasir-912050.jpg') no-repeat center center/cover; /* Ensure the image covers the viewport */
+            background-attachment: fixed; /* Keep the image fixed while scrolling */
+            opacity: 25%; /* Adjust the opacity for a subtler background */
+            z-index: -1; /* Ensure the image is behind the content */
         }
 
         .header {
-            background: #10465a;
+            background: linear-gradient(to right, #2c3e50, #10465a); /* Gradient background */
             color: white;
             padding: 20px 0;
             border-bottom: 2px solid #ddd;
@@ -72,20 +89,23 @@ if (isset($_POST['cancel_flight'])) {
 
         .header a {
             color: white;
-            font-size: 18px;
+            font-size: 16px;
             text-decoration: none;
-            padding: 5px 10px;
+            padding: 8px 15px;
             border-radius: 5px;
+            margin-left: 10px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
         }
 
         .header a:hover {
-            background-color: rgba(255, 255, 255, 0.56);
-            color: white;
+            background-color: rgba(255, 255, 255, 0.15);
+            transform: scale(1.05); /* Slight scaling effect for hover */
         }
 
         .company-logo {
             max-width: 60px;
             height: auto;
+            margin-right: 15px;
         }
 
         .company-info {
@@ -116,10 +136,12 @@ if (isset($_POST['cancel_flight'])) {
             font-size: 16px;
             cursor: pointer;
             border-radius: 5px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
         }
 
         .btn-logout:hover {
             background-color: #c0392b;
+            transform: scale(1.05); /* Slight scaling effect for hover */
         }
 
         .flight-table {
@@ -127,7 +149,7 @@ if (isset($_POST['cancel_flight'])) {
         }
 
         .flight-table th {
-            background-color: #10465a;
+            background-color: #2c3e50;
             color: white;
         }
 
@@ -143,10 +165,12 @@ if (isset($_POST['cancel_flight'])) {
             padding: 5px 10px;
             border-radius: 5px;
             cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
         }
 
         .btn-view-flight:hover {
             background-color: #2980b9;
+            transform: scale(1.05); /* Slight scaling effect for hover */
         }
 
         .flight-card {
@@ -156,7 +180,6 @@ if (isset($_POST['cancel_flight'])) {
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
-
         .flight-card h3 {
             color: #10465a;
         }
@@ -165,6 +188,8 @@ if (isset($_POST['cancel_flight'])) {
             font-size: 14px;
             color: #333;
         }
+
+
     </style>
 </head>
 <body>
@@ -183,6 +208,7 @@ if (isset($_POST['cancel_flight'])) {
             <a href="company_profile.php" class="btn btn-info">Profile <i class="fas fa-user"></i></a>
             <a href="add_flight.php" class="btn btn-success">Add Flight <i class="fas fa-plane-departure"></i></a>
             <a href="?logout=true" class="btn-logout">Logout <i class="fas fa-sign-out-alt"></i></a>
+            <a href="notifications.php" class="btn btn-warning"><i class="fas fa-bell"></i></a>
         </div>
     </div>
 </div>
